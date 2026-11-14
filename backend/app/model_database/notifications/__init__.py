@@ -1,0 +1,1 @@
+from app.model_database.notifications.notification import Notification

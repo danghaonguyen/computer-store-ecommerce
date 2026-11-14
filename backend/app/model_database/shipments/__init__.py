@@ -1,0 +1,1 @@
+from app.model_database.shipments.shipment import Shipment
