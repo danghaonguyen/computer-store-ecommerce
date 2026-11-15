@@ -21,6 +21,7 @@ if TYPE_CHECKING:
     from app.model_database.promotions.coupon_usage import CouponUsage
     from app.model_database.reviews.review import Review
     from app.model_database.shipments.shipment import Shipment
+    from app.model_database.payments.payment import Payment
 
 class Order(Base):
 
@@ -146,4 +147,8 @@ class Order(Base):
     shipment: Mapped["Shipment | None"] = relationship(
         back_populates="order",
         uselist=False
+    )
+
+    payment: Mapped["Payment"] = relationship(
+        back_populates="order"
     )
