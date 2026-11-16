@@ -4,10 +4,12 @@ from sqlalchemy import text
 
 from app.database.database import get_db
 from app.router.auth import auth
+from app.router.users import users
 
 app = FastAPI()
 
 app.include_router(auth.router)
+app.include_router(users.router)
 
 
 

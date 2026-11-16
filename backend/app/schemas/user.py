@@ -28,3 +28,26 @@ class UserLogin(BaseModel):
 
     email: EmailStr
     password: str
+
+
+
+# UPDATE USER
+class UserUpdate(BaseModel):
+
+    username: str | None = Field(default=None, min_length=3, max_length=50)
+    email: EmailStr | None = None
+    full_name: str | None = Field(default=None, min_length=1, max_length=50)
+    phone: str | None = Field(default=None, max_length=20)
+
+
+# UPDATE STATUS USER
+class UserStatusUpdate(BaseModel):
+
+    is_active: bool
+
+
+# UPDATE ROLES USER
+class UserRolesUpdate(BaseModel):
+
+    roles: list[str]
+    
