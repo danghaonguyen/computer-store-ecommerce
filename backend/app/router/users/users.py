@@ -20,9 +20,9 @@ async def get_user(db: AsyncSession = Depends(get_db),
 
     data = await db.execute(query)
 
-    users = data.scalars().all()
+    user = data.scalars().all()
 
-    return users
+    return user
 
 # GET USER_ID
 @router.get("/{user_id}", response_model=UserResponse)
