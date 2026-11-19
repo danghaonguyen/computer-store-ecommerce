@@ -5,18 +5,28 @@ from sqlalchemy import text
 from app.database.database import get_db
 from app.router import (
     auth, 
-    brand, 
     users, 
-    categories
+    categories,
+    products,
+    product_variants,
+    product_images,
+    product_attributes
     )
+from app.router import brands
+
 
 app = FastAPI()
 
 app.include_router(auth.router)
 app.include_router(users.router)
-app.include_router(categories.router)
-app.include_router(brand.router)
 
+app.include_router(categories.router)
+app.include_router(brands.router)
+
+app.include_router(products.router)
+app.include_router(product_variants.router)
+app.include_router(product_images.router)
+app.include_router(product_attributes.router)
 
 
 

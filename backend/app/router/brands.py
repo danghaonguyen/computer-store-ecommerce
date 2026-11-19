@@ -44,10 +44,16 @@ async def create_brand(brand_data: BrandCreate,
 
     new_brand = Brand(**brand_data.model_dump())
 
-    db.add(new_brand)
-    await db.commit()
-    await db.refresh(new_brand)
 
+    try:
+        db.add(new_brand)
+        await db.commit()
+        await db.refresh(new_brand)
+
+    except Exception:
+        await db.rollback()
+        raise
+    
     return new_brand
 
 
@@ -133,8 +139,13 @@ async def update_brand(brand_id: int, brand_data: BrandUpdate,
     for key, value in update_data.items():
         setattr(brand, key, value)
 
-    await db.commit()
-    await db.refresh(brand)
+    try:
+        await db.commit()
+        await db.refresh(brand)
+
+    except Exception:
+        await db.rollback()
+        raise
 
     return brand
 
@@ -158,8 +169,13 @@ async def update_brand_status(brand_id: int, brand_data: BrandStatusUpdate,
 
     brand.is_active = brand_data.is_active
 
-    await db.commit()
-    await db.refresh(brand)
+    try:
+        await db.commit()
+        await db.refresh(brand)
+
+    except Exception:
+        await db.rollback()
+        raise
 
     return brand
 
@@ -180,7 +196,12 @@ async def delete_brand(brand_id: int,
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, 
                             detail="ID Brand not found")
 
-    await db.delete(brand)
-    await db.commit()
+    try:
+        await db.delete(brand)
+        await db.commit()
+
+    except Exception:
+        await db.rollback()
+        raise
 
     return {"message" : "Brand deleted successfully"}

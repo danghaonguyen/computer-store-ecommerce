@@ -47,9 +47,14 @@ async def create_category(category_data: CategoryCreate,
         
     new_category = Category(**category_data.model_dump())
 
-    db.add(new_category)
-    await db.commit()
-    await db.refresh(new_category)
+    try:
+        db.add(new_category)
+        await db.commit()
+        await db.refresh(new_category)
+
+    except Exception:
+        await db.rollback()
+        raise
 
     return new_category
 
@@ -137,8 +142,13 @@ async def update_category(category_id: int, category_data: CategoryUpdate,
     for key, value in update_data.items():
         setattr(category, key, value)
 
-    await db.commit()
-    await db.refresh(category)
+    try:
+        await db.commit()
+        await db.refresh(category)
+
+    except Exception:
+        await db.rollback()
+        raise
 
     return category
 
@@ -162,8 +172,13 @@ async def update_category_status(category_id: int, category_data: CategoryStatus
 
     category.is_active = category_data.is_active
 
-    await db.commit()
-    await db.refresh(category)
+    try:
+        await db.commit()
+        await db.refresh(category)
+
+    except Exception:
+        await db.rollback()
+        raise
 
     return category
 
@@ -184,8 +199,13 @@ async def delete_category(category_id: int, db: AsyncSession = Depends(get_db),
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, 
                               detail="ID Category not found")
 
-    await db.delete(category)
-    await db.commit()
+    try:
+        await db.delete(category)
+        await db.commit()
 
+    except Exception:
+        await db.rollback()
+        raise
+    
     return {"message" : "Category deleted successfully"}
 

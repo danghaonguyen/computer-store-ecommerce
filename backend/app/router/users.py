@@ -64,8 +64,13 @@ async def update_user(user_id: int, user_data: UserUpdate,
     for key, value in update_data.items():
         setattr(user, key, value)
 
-    await db.commit()
-    await db.refresh(user)
+    try:
+        await db.commit()
+        await db.refresh(user)
+
+    except Exception:
+        await db.rollback()
+        raise
 
     return user
 
@@ -89,8 +94,13 @@ async def update_user_status(user_id: int, user_data: UserStatusUpdate,
 
     user.is_active = user_data.is_active
 
-    await db.commit()
-    await db.refresh(user)
+    try:
+        await db.commit()
+        await db.refresh(user)
+
+    except Exception:
+        await db.rollback()
+        raise
 
     return user
 
@@ -123,7 +133,12 @@ async def update_user_roles(user_id: int, user_data: UserRolesUpdate,
 
     user.roles = roles
 
-    await db.commit()
-    await db.refresh(user)
+    try:
+        await db.commit()
+        await db.refresh(user)
+
+    except Exception:
+        await db.rollback()
+        raise
 
     return user

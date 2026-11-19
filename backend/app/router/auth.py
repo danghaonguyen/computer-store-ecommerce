@@ -56,9 +56,15 @@ async def register_user(user_data: UserCreate, db: AsyncSession = Depends(get_db
 
     new_user.roles.append(customer_role.scalar_one())
 
-    db.add(new_user)
-    await db.commit()
-    await db.refresh(new_user)
+
+    try:
+        db.add(new_user)
+        await db.commit()
+        await db.refresh(new_user)
+
+    except Exception:
+        await db.rollback()
+        raise
 
     return new_user    
 
