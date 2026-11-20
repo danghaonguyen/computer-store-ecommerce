@@ -10,12 +10,16 @@ from app.router import (
     products,
     product_variants,
     product_images,
-    product_attributes
+    product_attributes,
+    product_catalog,
+    carts,
+    wishlist
     )
 from app.router import brands
 
 
 app = FastAPI()
+
 
 app.include_router(auth.router)
 app.include_router(users.router)
@@ -27,6 +31,10 @@ app.include_router(products.router)
 app.include_router(product_variants.router)
 app.include_router(product_images.router)
 app.include_router(product_attributes.router)
+
+app.include_router(product_catalog.router)
+app.include_router(carts.router)
+app.include_router(wishlist.router)
 
 
 
