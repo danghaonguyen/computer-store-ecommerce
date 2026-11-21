@@ -14,8 +14,8 @@ from app.schemas.product import ProductCreate, ProductResponse, ProductStatusUpd
 
 router = APIRouter(prefix="/products", tags=["Products"])
 
-
-@router.post("", response_model=ProductResponse)
+# CREATE PRODUCT
+@router.post("", response_model=ProductResponse, status_code=status.HTTP_201_CREATED)
 async def create_product(product_data: ProductCreate, 
                          db: AsyncSession = Depends(get_db), 
                          current_user: User = Depends(require_role("ADMIN"))

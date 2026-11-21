@@ -21,7 +21,7 @@ router = APIRouter(prefix="/products/{product_id}/variants",
                    tags=["Product Variants"])
 
 # ADD PRODUCT VARIANT
-@router.post("", response_model=ProductVariantResponse)
+@router.post("", response_model=ProductVariantResponse, status_code=status.HTTP_201_CREATED)
 async def create_product_variant(product_id: int, variant_data: ProductVariantCreate, 
                                  db: AsyncSession = Depends(get_db), 
                                  current_user: User = Depends(require_role("ADMIN"))

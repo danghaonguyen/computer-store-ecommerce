@@ -13,7 +13,11 @@ from app.router import (
     product_attributes,
     product_catalog,
     carts,
-    wishlist
+    wishlist,
+    warehouses,
+    inventories,
+    stock_movements,
+    suppliers
     )
 from app.router import brands
 
@@ -36,6 +40,10 @@ app.include_router(product_catalog.router)
 app.include_router(carts.router)
 app.include_router(wishlist.router)
 
+app.include_router(warehouses.router)
+app.include_router(inventories.router)
+app.include_router(stock_movements.router)
+app.include_router(suppliers.router)
 
 
 @app.get("/db-check")

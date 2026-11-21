@@ -17,7 +17,7 @@ router = APIRouter(prefix="/products/{product_id}/images", tags=["Product Images
 
 
 # ADD PRODUCT IMAGES
-@router.post("", response_model=ProductImageResponse)
+@router.post("", response_model=ProductImageResponse, status_code=status.HTTP_201_CREATED)
 async def create_product_image(
     product_id: int,
     image_data: ProductImageCreate,

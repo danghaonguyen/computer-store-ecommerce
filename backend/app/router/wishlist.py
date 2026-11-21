@@ -34,7 +34,7 @@ async def get_wishlist(db: AsyncSession = Depends(get_db),
 
 
 # ADD PRODUCT IN WISHLIST
-@router.post("", response_model=WishlistResponse)
+@router.post("", response_model=WishlistResponse, status_code=status.HTTP_201_CREATED)
 async def add_product_wishlist(wishlist_data: WishlistCreate,
                                db: AsyncSession = Depends(get_db),
                                current_user: User = Depends(require_role("CUSTOMER"))

@@ -18,7 +18,7 @@ router = APIRouter(prefix="/products/{product_id}/attributes",
 
 
 # ADD PRODUCT ATTRIBUTES
-@router.post("", response_model=ProductAttributeResponse)
+@router.post("", response_model=ProductAttributeResponse, status_code=status.HTTP_201_CREATED)
 async def create_product_attribute(product_id: int, attribute_data: ProductAttributeCreate, 
                                    db: AsyncSession = Depends(get_db), 
                                    current_user: User = Depends(require_role("ADMIN"))

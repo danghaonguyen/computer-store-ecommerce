@@ -33,7 +33,7 @@ class StockMovement(Base):
 
     supplier_id: Mapped[int | None] = mapped_column(
         Integer,
-        ForeignKey("suppliers.id", ondelete="SET NULL"),
+        ForeignKey("suppliers.id", ondelete="RESTRICT"),
         nullable=True
     )
 

@@ -52,7 +52,7 @@ async def get_cart(db: AsyncSession = Depends(get_db),
     return cart
 
 # ADD CART ITEM IN CART
-@router.post("/items", response_model=CartResponse)
+@router.post("/items", response_model=CartResponse, status_code=status.HTTP_201_CREATED)
 async def add_cart_item(item_data: CartItemCreate, 
                         db: AsyncSession = Depends(get_db), 
                         current_user: User = Depends(require_role("CUSTOMER"))
