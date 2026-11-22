@@ -149,6 +149,6 @@ class Order(Base):
         uselist=False
     )
 
-    payment: Mapped["Payment"] = relationship(
+    payment: Mapped["Payment | None"] = relationship(
         back_populates="order"
     )

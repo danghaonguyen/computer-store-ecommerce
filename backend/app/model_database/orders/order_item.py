@@ -14,7 +14,7 @@ from app.database.base import Base
 if TYPE_CHECKING:
     from app.model_database.orders.order import Order
     from app.model_database.products.product_variant import ProductVariant
-
+    from app.model_database.orders.order_item_inventory import OrderItemInventory
 
 class OrderItem(Base):
 
@@ -84,4 +84,9 @@ class OrderItem(Base):
 
     product_variant: Mapped["ProductVariant"] = relationship(
         back_populates="order_items"
+    )
+
+    inventory_allocations: Mapped[list["OrderItemInventory"]] = relationship(
+        back_populates="order_item",
+        cascade="all, delete-orphan"
     )

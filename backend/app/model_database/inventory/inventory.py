@@ -15,7 +15,7 @@ if TYPE_CHECKING:
     from app.model_database.products.product_variant import ProductVariant
     from app.model_database.inventory.warehouse import Warehouse
     from app.model_database.inventory.stock_movement import StockMovement
-
+    from app.model_database.orders.order_item_inventory import OrderItemInventory
 
 class Inventory(Base):
 
@@ -75,5 +75,9 @@ class Inventory(Base):
     )
 
     stock_movements: Mapped[list["StockMovement"]] = relationship(
+        back_populates="inventory"
+    )
+
+    order_item_allocations: Mapped[list["OrderItemInventory"]] = relationship(
         back_populates="inventory"
     )
