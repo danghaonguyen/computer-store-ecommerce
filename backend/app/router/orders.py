@@ -15,7 +15,13 @@ from app.model_database.orders.order_status_history import OrderStatusHistory
 from app.model_database.users.user import User
 from app.model_database.inventory.inventory import Inventory
 from app.model_database.orders.order_item_inventory import OrderItemInventory
-from app.schemas.order import OrderCreate, OrderDetailResponse, OrderStatusUpdate
+from app.model_database.inventory.stock_movement import StockMovement
+from app.schemas.order import (
+    OrderCreate, 
+    OrderDetailResponse, 
+    OrderStatusUpdate,
+    OrderStatusHistoryResponse
+)
 from decimal import Decimal
 from uuid import uuid4
 
@@ -228,6 +234,34 @@ async def get_order_id(order_id: int, db: AsyncSession = Depends(get_db),
 
     return order
 
+
+# GET ORDER STATUS HISTORY
+@router.get("/{order_id}/history", response_model=list[OrderStatusHistoryResponse])
+async def get_order_status_history(order_id: int, db: AsyncSession = Depends(get_db),
+                                   current_user: User = Depends(require_role("CUSTOMER"))
+                                   ):
+
+    query = select(Order).where(Order.id == order_id, Order.user_id == current_user.id)
+
+    result = await db.execute(query)
+
+    order = result.scalar_one_or_none()
+
+    if order is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                            detail="Order not found")
+
+
+    query = select(OrderStatusHistory).where(
+        OrderStatusHistory.order_id == order_id).order_by(OrderStatusHistory.created_at.desc())
+
+    result = await db.execute(query)
+
+    order_history = result.scalars().all()
+
+    return order_history
+
+
 # UPDATE ORDER
 @router.patch("/{order_id}/cancel")
 async def update_order(order_id: int, db: AsyncSession = Depends(get_db),
@@ -295,6 +329,7 @@ async def update_order(order_id: int, db: AsyncSession = Depends(get_db),
     return order
 
 # ADMIN =================================
+
 # UPDATE ORDERS STATUS
 @router.patch("/{order_id}/status")
 async def update_order_status(order_id: int, order_data: OrderStatusUpdate,
@@ -327,6 +362,36 @@ async def update_order_status(order_id: int, order_data: OrderStatusUpdate,
                                 detail=f"Cannot change order status from {order.status} to {order_data.status}")
 
 
+        if order_data.status == "DELIVERED":
+
+            query = select(OrderItemInventory).join(OrderItem).where(OrderItem.order_id == order_id)
+
+            result = await db.execute(query)
+
+            allocations = result.scalars().all()
+
+            for allocation in allocations:
+
+                query = select(Inventory).where(Inventory.id == allocation.inventory_id).with_for_update()
+
+                result = await db.execute(query)
+
+                inventory = result.scalar_one()
+
+                inventory.quantity -= allocation.quantity
+                inventory.reserved_quantity -= allocation.quantity
+
+                stock_movement = StockMovement(
+
+                    inventory_id=inventory.id,
+                    supplier_id=None,
+                    movement_type="OUT",
+                    quantity=allocation.quantity,
+                    note=f"Order delivered: {order.order_number}"
+                )
+
+                db.add(stock_movement)   
+
         order.status = order_data.status
 
         order_history = OrderStatusHistory(
@@ -349,3 +414,28 @@ async def update_order_status(order_id: int, order_data: OrderStatusUpdate,
 
     return order
 
+# GET ORDER STATUS HISTORY
+@router.get("/admin/{order_id}/history", response_model=list[OrderStatusHistoryResponse])
+async def get_order_status_history_admin(order_id: int, db: AsyncSession = Depends(get_db),
+                                         current_user: User = Depends(require_role("ADMIN"))
+                                         ):
+
+
+    query = select(Order).where(Order.id == order_id)
+
+    result = await db.execute(query)
+
+    order = result.scalar_one_or_none()
+
+    if order is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                            detail="Order not found")
+
+    query = select(OrderStatusHistory).where(
+        OrderStatusHistory.order_id == order_id).order_by(OrderStatusHistory.created_at.desc())
+
+    result = await db.execute(query)
+
+    order_history = result.scalars().all()
+
+    return order_history

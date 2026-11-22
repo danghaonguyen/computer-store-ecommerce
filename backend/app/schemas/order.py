@@ -76,3 +76,17 @@ class OrderStatusUpdate(BaseModel):
         "DELIVERED"
     ]
     note: str | None = None
+
+
+
+# OUTPUT ORDER STATUS HISTORY
+class OrderStatusHistoryResponse(BaseModel):
+
+    id: int
+    order_id: int
+    changed_by: int | None
+    status: str
+    note: str | None
+    created_at: datetime
+
+    model_config = {"from_attributes": True}
