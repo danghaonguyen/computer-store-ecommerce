@@ -14,6 +14,9 @@ class OrderCreate(BaseModel):
     shipping_address: str = Field(min_length=1, max_length=255)
     note: str | None = Field(default=None, max_length=255)
 
+    
+    coupon_code: str | None = Field(default=None, min_length=1, max_length=50)
+
 
 # OUTPUT ORDER
 class OrderResponse(BaseModel):

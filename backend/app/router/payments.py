@@ -196,15 +196,10 @@ async def create_payment(order_id: int, db: AsyncSession = Depends(get_db),
 
 
 # CHECK PAYMENT STATUS
-@router.get(
-    "/transactions/{transaction_id}/status",
-    response_model=PaymentDetailResponse
-)
-async def check_payment_status(
-    transaction_id: int,
-    db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(require_role("CUSTOMER"))
-):
+@router.get("/transactions/{transaction_id}/status", response_model=PaymentDetailResponse)
+async def check_payment_status(transaction_id: int, db: AsyncSession = Depends(get_db), 
+                               current_user: User = Depends(require_role("CUSTOMER"))
+                               ):
 
     # Find transaction belonging to current customer
     query = select(PaymentTransaction).options(

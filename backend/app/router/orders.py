@@ -22,6 +22,10 @@ from app.schemas.order import (
     OrderStatusUpdate,
     OrderStatusHistoryResponse
 )
+from datetime import datetime, timezone
+from sqlalchemy import func
+from app.model_database.promotions.coupon import Coupon
+from app.model_database.promotions.coupon_usage import CouponUsage
 from decimal import Decimal
 from uuid import uuid4
 
@@ -79,19 +83,84 @@ async def create_order(order_data: OrderCreate, db: AsyncSession = Depends(get_d
 
             subtotal += price_variant * item.quantity
 
-        
+        # Check coupon
+        coupon = None
+        discount_amount = Decimal("0.00")
+
+        if order_data.coupon_code is not None:
+
+            query = select(Coupon).where(
+
+                Coupon.code == order_data.coupon_code
+
+            ).with_for_update()
+
+            result = await db.execute(query)
+
+            coupon = result.scalar_one_or_none()
+
+            if coupon is None:
+                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, 
+                                    detail="Coupon not found")
+
+            if not coupon.is_active:
+                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                                    detail="Coupon is inactive")
+
+            now = datetime.now(timezone.utc)
+
+            if now < coupon.start_at or now > coupon.end_at:
+                raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                                    detail="Coupon is  not available at this time")
+
+            if subtotal < coupon.minimum_order_amount:
+                raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                                    detail="Order amount does not meet coupon minium")
+
+            if coupon.usage_limit is not None and coupon.used_count >= coupon.usage_limit:
+                raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                                    detail="Coupon usage limit exceeded")
+
+            query = select(func.count(CouponUsage.id)).where(
+
+                CouponUsage.coupon_id == coupon.id,
+                CouponUsage.user_id == current_user.id
+
+            )
+
+            result = await db.execute(query)
+
+            user_used_count = result.scalar_one()
+
+            if user_used_count >= coupon.usage_limit_per_user:
+                raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                                    detail="You have exceeded the coupon usage limit")
+
+            # Calculate discount
+            if coupon.discount_type == "PERCENTAGE":
+
+                discount_amount = subtotal * coupon.discount_value / Decimal("100")
+
+                if coupon.maximum_discount_amount is not None:
+
+                    discount_amount = min(discount_amount, coupon.maximum_discount_amount)
+
+            else:
+                discount_amount = coupon.discount_value
+
+            # Discount cannot exceed subtotal
+            discount_amount = min(discount_amount, subtotal)
+
         # Create shipping fee and discount amount
         shipping_fee = Decimal("0.00")
 
-        discount_amount = Decimal("0.00")
-
-        total_amount = subtotal + shipping_fee - discount_amount
+        total_amount = subtotal - discount_amount + shipping_fee
 
         order_number = f"ORD-{uuid4().hex[:12].upper()}"
 
         new_order = Order(
 
-            **order_data.model_dump(),
+            **order_data.model_dump(exclude={"coupon_code"}),
             user_id=current_user.id,
             order_number=order_number,
             subtotal=subtotal,
@@ -172,6 +241,20 @@ async def create_order(order_data: OrderCreate, db: AsyncSession = Depends(get_d
 
         for item in carts.items:
             await db.delete(item)
+
+        # Create coupon usage
+        if coupon is not None:
+
+            coupon_usage = CouponUsage(
+                coupon_id=coupon.id,
+                user_id=current_user.id,
+                order_id=new_order.id,
+                discount_amount=discount_amount
+            )
+
+            db.add(coupon_usage)
+
+            coupon.used_count += 1
 
 
         await db.commit()
