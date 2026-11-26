@@ -16,6 +16,7 @@ class PaymentTransactionResponse(BaseModel):
     model_config = {"from_attributes": True}
 
 
+# OUTPUT RESPONSE
 class PaymentResponse(BaseModel):
     id: int
     order_id: int
@@ -28,7 +29,7 @@ class PaymentResponse(BaseModel):
 
     model_config = {"from_attributes": True}
 
-
+# OUTPUT DETAIL PAYMENT RESPONSE
 class PaymentDetailResponse(PaymentResponse):
 
     transactions: list[PaymentTransactionResponse] = Field(default_factory=list)
@@ -41,3 +42,9 @@ class PaymentCheckoutResponse(BaseModel):
     payment_status: str
     amount: Decimal
     qr_code: str
+
+
+class ZaloPayCallbackRequest(BaseModel):
+    data: str
+    mac: str
+    type: int

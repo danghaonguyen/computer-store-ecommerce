@@ -16,11 +16,11 @@ from app.model_database.inventory.inventory import Inventory
 
 
 
-router = APIRouter(prefix="/warehouses", tags=["Warehouses"])
+admin = APIRouter(prefix="/admin/warehouses", tags=["Warehouses - Admin"])
 
 
 # CREATE WAREHOUSE
-@router.post("", response_model=WarehouseResponse, status_code=status.HTTP_201_CREATED)
+@admin.post("", response_model=WarehouseResponse, status_code=status.HTTP_201_CREATED)
 async def create_warehouse(warehouse_data: WarehouseCreate,
                            db: AsyncSession = Depends(get_db),
                            current_user: User = Depends(require_role("ADMIN"))
@@ -51,7 +51,7 @@ async def create_warehouse(warehouse_data: WarehouseCreate,
 
 
 # GET WAREHOUSE
-@router.get("", response_model=list[WarehouseResponse])
+@admin.get("", response_model=list[WarehouseResponse])
 async def get_warehouse(db: AsyncSession = Depends(get_db), 
                         current_user: User = Depends(require_role("ADMIN"))
                         ):
@@ -66,7 +66,7 @@ async def get_warehouse(db: AsyncSession = Depends(get_db),
 
 
 # GET WAREHOUSE ID
-@router.get("/{warehouse_id}", response_model=WarehouseResponse)
+@admin.get("/{warehouse_id}", response_model=WarehouseResponse)
 async def get_warehouse_id(warehouse_id: int, db: AsyncSession = Depends(get_db),
                            current_user: User = Depends(require_role("ADMIN"))
                            ):
@@ -85,7 +85,7 @@ async def get_warehouse_id(warehouse_id: int, db: AsyncSession = Depends(get_db)
 
 
 # UPDATE WAREHOUSE 
-@router.patch("/{warehouse_id}", response_model=WarehouseResponse)
+@admin.patch("/{warehouse_id}", response_model=WarehouseResponse)
 async def update_warehouse(warehouse_id: int, warehouse_data: WarehouseUpdate,
                            db: AsyncSession = Depends(get_db),
                            current_user: User = Depends(require_role("ADMIN"))
@@ -130,7 +130,7 @@ async def update_warehouse(warehouse_id: int, warehouse_data: WarehouseUpdate,
 
 
 # UPDATE WAREHOUSE STATUS
-@router.patch("/{warehouse_id}/status", response_model=WarehouseResponse)
+@admin.patch("/{warehouse_id}/status", response_model=WarehouseResponse)
 async def update_warehouse_status(warehouse_id: int, warehouse_data: WarehouseStatusUpdate,
                               db: AsyncSession = Depends(get_db), 
                               current_user: User = Depends(require_role("ADMIN"))
@@ -160,7 +160,7 @@ async def update_warehouse_status(warehouse_id: int, warehouse_data: WarehouseSt
 
 
 # DELETE WAREHOUSE
-@router.delete("/{warehouse_id}")
+@admin.delete("/{warehouse_id}")
 async def delete_warehouse(warehouse_id: int, db: AsyncSession = Depends(get_db),
                            current_user: User = Depends(require_role("ADMIN"))
                            ):

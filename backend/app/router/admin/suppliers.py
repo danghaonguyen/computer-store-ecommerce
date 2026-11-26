@@ -10,11 +10,11 @@ from app.core.security import require_role
 from app.model_database.users.user import User
 
 
-router = APIRouter(prefix="/suppliers", tags=["Suppliers"])
+admin = APIRouter(prefix="/admin/suppliers", tags=["Suppliers - Admin"])
 
 
 # CREATE SUPPLIER
-@router.post("", response_model=SupplierResponse)
+@admin.post("", response_model=SupplierResponse)
 async def create_supplier(supplier_data: SupplierCreate,
                           db: AsyncSession = Depends(get_db),
                           current_user: User = Depends(require_role("ADMIN"))
@@ -44,7 +44,7 @@ async def create_supplier(supplier_data: SupplierCreate,
     return new_supplier
 
 # GET SUPPLIER
-@router.get("", response_model=list[SupplierResponse])
+@admin.get("", response_model=list[SupplierResponse])
 async def get_supplier(db: AsyncSession = Depends(get_db), 
                        current_user: User = Depends(require_role("ADMIN"))
                        ):
@@ -59,7 +59,7 @@ async def get_supplier(db: AsyncSession = Depends(get_db),
 
 
 # GET SUPPLIER ID
-@router.get("/{supplier_id}", response_model=SupplierResponse)
+@admin.get("/{supplier_id}", response_model=SupplierResponse)
 async def get_supplier_id(supplier_id: int, db: AsyncSession = Depends(get_db),
                           current_user: User = Depends(require_role("ADMIN"))
                           ):
@@ -77,7 +77,7 @@ async def get_supplier_id(supplier_id: int, db: AsyncSession = Depends(get_db),
     return supplier
 
 # UPDATE SUPPLIER ID
-@router.patch("/{supplier_id}", response_model=SupplierResponse)
+@admin.patch("/{supplier_id}", response_model=SupplierResponse)
 async def update_supplier(supplier_id: int, supplier_data: SupplierUpdate,
                           db: AsyncSession = Depends(get_db),
                           current_user: User = Depends(require_role("ADMIN"))
@@ -128,7 +128,7 @@ async def update_supplier(supplier_id: int, supplier_data: SupplierUpdate,
 
 
 # DELETE SUPPLIER 
-@router.delete("/{supplier_id}", status_code=status.HTTP_204_NO_CONTENT)
+@admin.delete("/{supplier_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_supplier(supplier_id: int, 
                           db: AsyncSession = Depends(get_db),
                           current_user: User = Depends(require_role("ADMIN"))

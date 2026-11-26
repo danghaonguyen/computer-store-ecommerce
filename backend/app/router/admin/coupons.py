@@ -21,11 +21,11 @@ from datetime import datetime, timezone
 from decimal import Decimal
 
 
-router = APIRouter(prefix="/coupons", tags=["Coupons"])
+admin = APIRouter(prefix="/admin/coupons", tags=["Coupons - Admin"])
 
 
 # ADMIN ==========================
-@router.post("", response_model=CouponResponse, status_code=status.HTTP_201_CREATED)
+@admin.post("", response_model=CouponResponse, status_code=status.HTTP_201_CREATED)
 async def create_coupon(coupon_data: CouponCreate, db: AsyncSession = Depends(get_db),
                         current_user: User = Depends(require_role("ADMIN"))
                         ):
@@ -57,7 +57,7 @@ async def create_coupon(coupon_data: CouponCreate, db: AsyncSession = Depends(ge
 
 
 # GET ALL CODING
-@router.get("", response_model=list[CouponResponse])
+@admin.get("", response_model=list[CouponResponse])
 async def get_coupons(db: AsyncSession = Depends(get_db),
                       current_user: User = Depends(require_role("ADMIN"))
                       ):
@@ -72,7 +72,7 @@ async def get_coupons(db: AsyncSession = Depends(get_db),
 
 
 # GET CODING ID
-@router.get("/{coupon_id}", response_model=CouponResponse)
+@admin.get("/{coupon_id}", response_model=CouponResponse)
 async def get_coupon_id(coupon_id: int, db: AsyncSession = Depends(get_db),
                         current_user: User = Depends(require_role("ADMIN"))
                         ):
@@ -92,7 +92,7 @@ async def get_coupon_id(coupon_id: int, db: AsyncSession = Depends(get_db),
 
 
 # UPDATE COUPON
-@router.patch("/{coupon_id}", response_model=CouponResponse)
+@admin.patch("/{coupon_id}", response_model=CouponResponse)
 async def update_coupon(coupon_id: int, coupon_data: CouponUpdate,
                         db: AsyncSession = Depends(get_db),
                         current_user: User = Depends(require_role("ADMIN"))
@@ -153,7 +153,7 @@ async def update_coupon(coupon_id: int, coupon_data: CouponUpdate,
 
 
 # UPDATE COUPON STATUS
-@router.patch("/{coupon_id}/status", response_model=CouponResponse)
+@admin.patch("/{coupon_id}/status", response_model=CouponResponse)
 async def update_coupon_status(coupon_id: int, coupon_data: CouponUpdateStatus,
                                db: AsyncSession = Depends(get_db),
                                current_user: User = Depends(require_role("ADMIN"))
@@ -180,95 +180,3 @@ async def update_coupon_status(coupon_id: int, coupon_data: CouponUpdateStatus,
         raise
 
     return coupon
-
-
-# CUSTOMER ==========================
-# VALIDATE COUPON
-@router.post("/validate", response_model=CouponValidateResponse)
-async def validate_coupon(coupon_data: CouponValidate,
-                          db: AsyncSession = Depends(get_db),
-                          current_user: User = Depends(require_role("CUSTOMER"))
-                          ):
-
-    # Find coupon
-    query = select(Coupon).where(Coupon.code == coupon_data.code)
-
-    result = await db.execute(query)
-
-    coupon = result.scalar_one_or_none()
-
-    if coupon is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
-                            detail="Coupon not found")
-
-    # Check status coupon
-    if not coupon.is_active:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
-                            detail="Coupon is inactive")
-
-    # Check coupon time
-    now = datetime.now(timezone.utc)
-
-    if now < coupon.start_at or now > coupon.end_at:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
-                            detail="Coupon is not available at this time")
-
-
-    # Check minium order amount
-    if coupon_data.subtotal < coupon.minimum_order_amount:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
-                            detail="Order amount does not meet coupon minium")
-
-
-    # Check total usage limit
-    if coupon.usage_limit is not None and coupon.used_count >= coupon.usage_limit:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
-                            detail="Coupon usage limit exceeded")
-
-
-    # Check user usage limit
-    query = select(func.count(CouponUsage.id)).where(
-
-        CouponUsage.coupon_id == coupon.id,
-        CouponUsage.user_id == current_user.id
-
-    )
-
-    result = await db.execute(query)
-
-    user_used_count = result.scalar_one()
-
-    if user_used_count >= coupon.usage_limit_per_user:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
-                            detail="You have exceeded the coupon usage limit")
-
-
-    # Calculate discount
-    if coupon.discount_type == "PERCENTAGE":
-        discount_amount = coupon_data.subtotal * coupon.discount_value / Decimal("100")
-
-        # Apply maxium discount limit:
-        if coupon.maximum_discount_amount is not None:
-            discount_amount = min(discount_amount, coupon.maximum_discount_amount)
-
-
-    else:
-        discount_amount = coupon.discount_value
-
-    # Discount cannot exceed subtotal
-    discount_amount = min(discount_amount, coupon_data.subtotal)
-
-    # Calculate total after discount
-    total_after_discount = coupon_data.subtotal - discount_amount
-
-    response_coupon = CouponValidateResponse(
-
-        code=coupon.code,
-        discount_type=coupon.discount_type,
-        discount_value=coupon.discount_value,
-        subtotal=coupon_data.subtotal,
-        discount_amount=discount_amount,
-        total_after_discount=total_after_discount
-    )
-
-    return response_coupon

@@ -17,11 +17,11 @@ from app.schemas.product_variant import (
 )
 from app.model_database.users.user import User
 
-router = APIRouter(prefix="/products/{product_id}/variants", 
-                   tags=["Product Variants"])
+admin = APIRouter(prefix="/admin/products/{product_id}/variants", 
+                   tags=["Product Variants - Admin"])
 
 # ADD PRODUCT VARIANT
-@router.post("", response_model=ProductVariantResponse, status_code=status.HTTP_201_CREATED)
+@admin.post("", response_model=ProductVariantResponse, status_code=status.HTTP_201_CREATED)
 async def create_product_variant(product_id: int, variant_data: ProductVariantCreate, 
                                  db: AsyncSession = Depends(get_db), 
                                  current_user: User = Depends(require_role("ADMIN"))
@@ -62,7 +62,7 @@ async def create_product_variant(product_id: int, variant_data: ProductVariantCr
 
 
 # GET PRODUCT VARIANT
-@router.get("", response_model=list[ProductVariantResponse])
+@admin.get("", response_model=list[ProductVariantResponse])
 async def get_product_variant(product_id: int, 
                               db: AsyncSession = Depends(get_db), 
                               current_user: User = Depends(require_role("ADMIN"))
@@ -87,7 +87,7 @@ async def get_product_variant(product_id: int,
 
 
 # GET PRODUCT VARIANT ID
-@router.get("/{variant_id}", response_model=ProductVariantResponse)
+@admin.get("/{variant_id}", response_model=ProductVariantResponse)
 async def get_product_variant_id(product_id: int, variant_id: int, 
                                  db: AsyncSession = Depends(get_db), 
                                  current_user: User = Depends(require_role("ADMIN"))
@@ -116,7 +116,7 @@ async def get_product_variant_id(product_id: int, variant_id: int,
     return variant
 
 # UPDATE PRODUCT VARIANT ID
-@router.patch("/{variant_id}", response_model=ProductVariantResponse)
+@admin.patch("/{variant_id}", response_model=ProductVariantResponse)
 async def update_product_variant(product_id: int, variant_id: int, 
                                     variant_data: ProductVariantUpdate,  
                                     db: AsyncSession = Depends(get_db), 
@@ -173,7 +173,7 @@ async def update_product_variant(product_id: int, variant_id: int,
 
 
 # UPDATE PRODUCT VARIANT STATUS
-@router.patch("/{variant_id}/status", response_model=ProductVariantResponse)
+@admin.patch("/{variant_id}/status", response_model=ProductVariantResponse)
 async def update_product_variant_status(product_id: int, variant_id: int, 
                                         status_data: ProductVariantStatusUpdate, 
                                         db: AsyncSession = Depends(get_db), 
@@ -214,7 +214,7 @@ async def update_product_variant_status(product_id: int, variant_id: int,
 
 
 # DELETE PRODUCT VARIANT
-@router.delete("/{variant_id}")
+@admin.delete("/{variant_id}")
 async def delete_product_variant(product_id: int, variant_id: int, 
                                  db: AsyncSession = Depends(get_db), 
                                  current_user: User = Depends(require_role("ADMIN"))

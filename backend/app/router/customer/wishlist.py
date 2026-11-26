@@ -11,11 +11,11 @@ from app.model_database.products.product_variant import ProductVariant
 from app.schemas.wishlist import WishlistCreate, WishlistResponse
 
 
-router = APIRouter(prefix="/wishlist", tags=["Wishlist"])
+customer = APIRouter(prefix="/wishlist", tags=["Wishlist - Customer"])
 
 
 # GET WISHLIST
-@router.get("", response_model=list[WishlistResponse])
+@customer.get("", response_model=list[WishlistResponse])
 async def get_wishlist(db: AsyncSession = Depends(get_db), 
                        current_user: User = Depends(require_role("CUSTOMER"))
                        ):
@@ -34,7 +34,7 @@ async def get_wishlist(db: AsyncSession = Depends(get_db),
 
 
 # ADD PRODUCT IN WISHLIST
-@router.post("", response_model=WishlistResponse, status_code=status.HTTP_201_CREATED)
+@customer.post("", response_model=WishlistResponse, status_code=status.HTTP_201_CREATED)
 async def add_product_wishlist(wishlist_data: WishlistCreate,
                                db: AsyncSession = Depends(get_db),
                                current_user: User = Depends(require_role("CUSTOMER"))
@@ -100,7 +100,7 @@ async def add_product_wishlist(wishlist_data: WishlistCreate,
 
 
 # DELETE PRODUCT IN WISHLIST
-@router.delete("/{wishlist_id}")
+@customer.delete("/{wishlist_id}")
 async def delete_product_wishlist(wishlist_id: int,
                                   db: AsyncSession = Depends(get_db),
                                   current_user: User = Depends(require_role("CUSTOMER"))

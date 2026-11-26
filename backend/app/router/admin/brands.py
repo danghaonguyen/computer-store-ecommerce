@@ -14,10 +14,10 @@ from app.core.security import require_role
 from app.model_database.users.user import User
 
 
-router = APIRouter(prefix="/brands", tags=["Brands"])
+admin = APIRouter(prefix="/admin/brands", tags=["Brands"])
 
 # CREATED BRAND
-@router.post("", response_model=BrandResponse, status_code=status.HTTP_201_CREATED)
+@admin.post("", response_model=BrandResponse, status_code=status.HTTP_201_CREATED)
 async def create_brand(brand_data: BrandCreate, 
                        db: AsyncSession = Depends(get_db), 
                        current_user: User = Depends(require_role("ADMIN"))
@@ -59,7 +59,7 @@ async def create_brand(brand_data: BrandCreate,
 
 
 # GET BRAND
-@router.get("", response_model=list[BrandResponse])
+@admin.get("", response_model=list[BrandResponse])
 async def get_brand(db: AsyncSession = Depends(get_db), 
                     current_user: User = Depends(require_role("ADMIN"))
                     ):
@@ -74,7 +74,7 @@ async def get_brand(db: AsyncSession = Depends(get_db),
 
 
 # GET BRAND ID
-@router.get("/{brand_id}", response_model=BrandResponse)
+@admin.get("/{brand_id}", response_model=BrandResponse)
 async def get_brand_id(brand_id: int, 
                        db: AsyncSession = Depends(get_db), 
                        current_user: User = Depends(require_role("ADMIN"))
@@ -93,7 +93,7 @@ async def get_brand_id(brand_id: int,
     return brands
 
 # UPDATE BRAND 
-@router.patch("/{brand_id}", response_model=BrandResponse)
+@admin.patch("/{brand_id}", response_model=BrandResponse)
 async def update_brand(brand_id: int, brand_data: BrandUpdate, 
                        db: AsyncSession = Depends(get_db), 
                        current_user: User = Depends(require_role("ADMIN"))
@@ -151,7 +151,7 @@ async def update_brand(brand_id: int, brand_data: BrandUpdate,
 
 
 # UPDATE BRAND STATUS
-@router.patch("/{brand_id}/status", response_model=BrandResponse)
+@admin.patch("/{brand_id}/status", response_model=BrandResponse)
 async def update_brand_status(brand_id: int, brand_data: BrandStatusUpdate, 
                               db: AsyncSession = Depends(get_db), 
                               current_user: User = Depends(require_role("ADMIN"))
@@ -180,7 +180,7 @@ async def update_brand_status(brand_id: int, brand_data: BrandStatusUpdate,
     return brand
 
 # DELETE BRAND
-@router.delete("/{brand_id}")
+@admin.delete("/{brand_id}")
 async def delete_brand(brand_id: int, 
                        db: AsyncSession = Depends(get_db), 
                        current_user: User = Depends(require_role("ADMIN"))

@@ -12,10 +12,10 @@ from app.model_database.reviews.review import Review
 from app.schemas.product import ProductCreate, ProductResponse, ProductStatusUpdate, ProductUpdate
 
 
-router = APIRouter(prefix="/products", tags=["Products"])
+admin = APIRouter(prefix="/admin/products", tags=["Products - Admin"])
 
 # CREATE PRODUCT
-@router.post("", response_model=ProductResponse, status_code=status.HTTP_201_CREATED)
+@admin.post("", response_model=ProductResponse, status_code=status.HTTP_201_CREATED)
 async def create_product(product_data: ProductCreate, 
                          db: AsyncSession = Depends(get_db), 
                          current_user: User = Depends(require_role("ADMIN"))
@@ -67,7 +67,7 @@ async def create_product(product_data: ProductCreate,
 
 
 # GET PRODUCT
-@router.get("", response_model=list[ProductResponse])
+@admin.get("", response_model=list[ProductResponse])
 async def get_product(db: AsyncSession = Depends(get_db), 
                       current_user: User = Depends(require_role("ADMIN"))
                       ):
@@ -82,7 +82,7 @@ async def get_product(db: AsyncSession = Depends(get_db),
 
 
 # GET PRODUCT ID
-@router.get("/{product_id}", response_model=ProductResponse)
+@admin.get("/{product_id}", response_model=ProductResponse)
 async def get_product_id(product_id: int, 
                          db: AsyncSession = Depends(get_db), 
                          current_user: User = Depends(require_role("ADMIN"))
@@ -101,7 +101,7 @@ async def get_product_id(product_id: int,
     return product
 
 # UPDATE PRODUCT
-@router.patch("/{product_id}", response_model=ProductResponse)
+@admin.patch("/{product_id}", response_model=ProductResponse)
 async def update_product(product_id: int, product_data: ProductUpdate, 
                          db: AsyncSession = Depends(get_db), 
                          current_user: User = Depends(require_role("ADMIN"))
@@ -169,7 +169,7 @@ async def update_product(product_id: int, product_data: ProductUpdate,
 
 
 # UPDATE PRODUCT STATUS
-@router.patch("/{product_id}/status", response_model=ProductResponse)
+@admin.patch("/{product_id}/status", response_model=ProductResponse)
 async def update_product_status(product_id: int, product_data: ProductStatusUpdate, 
                                 db: AsyncSession = Depends(get_db), 
                                 current_user: User = Depends(require_role("ADMIN"))
@@ -199,7 +199,7 @@ async def update_product_status(product_id: int, product_data: ProductStatusUpda
 
 
 # DELETE PRODUCT
-@router.delete("/{product_id}")
+@admin.delete("/{product_id}")
 async def delete_product(product_id: int, 
                          db: AsyncSession = Depends(get_db), 
                          current_user: User = Depends(require_role("ADMIN"))

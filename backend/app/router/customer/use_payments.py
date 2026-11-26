@@ -22,18 +22,17 @@ from app.model_database.payments.payment_transaction import PaymentTransaction
 from app.schemas.payment import (
     PaymentCheckoutResponse, 
     PaymentDetailResponse,
-    PaymentResponse
 )
 
 from app.services.zalopay_service import ZaloPayService
 
 
-router = APIRouter(prefix="/payments", tags=["Payments"])
+customer = APIRouter(prefix="/payments", tags=["Payments - Customer"])
 
 
 # CUSTOMER =====================================
 # CREATE PAYMENT
-@router.post("/orders/{order_id}", response_model=PaymentCheckoutResponse, status_code=status.HTTP_201_CREATED)
+@customer.post("/orders/{order_id}", response_model=PaymentCheckoutResponse, status_code=status.HTTP_201_CREATED)
 async def create_payment(order_id: int, db: AsyncSession = Depends(get_db),
                          current_user: User = Depends(require_role("CUSTOMER"))
                          ):
@@ -196,7 +195,7 @@ async def create_payment(order_id: int, db: AsyncSession = Depends(get_db),
 
 
 # CHECK PAYMENT STATUS
-@router.get("/transactions/{transaction_id}/status", response_model=PaymentDetailResponse)
+@customer.get("/transactions/{transaction_id}/status", response_model=PaymentDetailResponse)
 async def check_payment_status(transaction_id: int, db: AsyncSession = Depends(get_db), 
                                current_user: User = Depends(require_role("CUSTOMER"))
                                ):
@@ -280,169 +279,3 @@ async def check_payment_status(transaction_id: int, db: AsyncSession = Depends(g
 
     return PaymentDetailResponse.model_validate(payment)
 
-
-
-
-# ZALOPAY CALLBACK
-@router.post("/callback")
-async def zalopay_callback(callback_data: dict = Body(...),
-                           db: AsyncSession = Depends(get_db)):
-    
-    zalopay = ZaloPayService()
-
-    # Verify callback signature
-    try:
-        data = zalopay.verify_callback(callback_data)
-    except (ValueError, TypeError, json.JSONDecodeError):
-        data = None
-
-    if data is None:
-        return {
-            "return_code": 2,
-            "return_message": "Invalid MAC"
-        }
-
-    # Only handle payment order callbacks
-    if callback_data.get("type") != 1:
-        return {
-            "return_code": 2,
-            "return_message": "Invalid callback type"
-        }
-
-    # Verify app ID
-    try:
-        if int(data.get("app_id")) != int(zalopay.app_id):
-            return {
-                "return_code": 2,
-                "return_message": "Invalid app ID"
-            }
-    except (ValueError, TypeError):
-        return {
-            "return_code": 2,
-            "return_message": "Invalid app ID"
-        }
-
-    app_trans_id = data.get("app_trans_id")
-
-    if not app_trans_id:
-        return {
-            "return_code": 2,
-            "return_message": "Missing transaction ID"
-        }
-
-    # Find payment transaction
-    query = (
-        select(PaymentTransaction)
-        .options(selectinload(PaymentTransaction.payment))
-        .where(PaymentTransaction.transaction_code == app_trans_id)
-        .with_for_update()
-    )
-
-    result = await db.execute(query)
-    transaction = result.scalar_one_or_none()
-
-    if transaction is None:
-        return {
-            "return_code": 0,
-            "return_message": "Transaction not found"
-        }
-
-    payment = transaction.payment
-
-    # Verify transaction amount
-    try:
-        callback_amount = Decimal(str(data.get("amount")))
-    except (ValueError, TypeError):
-        return {
-            "return_code": 2,
-            "return_message": "Invalid amount"
-        }
-
-    if (
-        callback_amount != transaction.amount
-        or callback_amount != payment.amount
-    ):
-        return {
-            "return_code": 2,
-            "return_message": "Amount mismatch"
-        }
-
-    # Handle duplicate callback
-    if transaction.transaction_status == "SUCCESS":
-        return {
-            "return_code": 1,
-            "return_message": "success"
-        }
-
-    # Do not overwrite a failed transaction
-    if transaction.transaction_status == "FAILED":
-        return {
-            "return_code": 2,
-            "return_message": "Transaction already failed"
-        }
-
-    # Update payment and transaction
-    transaction.transaction_status = "SUCCESS"
-    payment.payment_status = "SUCCESS"
-    payment.paid_at = datetime.now(
-        ZoneInfo("Asia/Ho_Chi_Minh")
-    )
-
-    transaction.gateway_response = json.dumps(
-        callback_data,
-        ensure_ascii=False
-    )
-
-    await db.commit()
-
-    return {
-        "return_code": 1,
-        "return_message": "success"
-    }
-
-
-
-# ADMIN ========================================
-
-# GET PAYMENT LIST
-@router.get("/admin",response_model=list[PaymentResponse])
-async def get_payments(payment_status: str | None = None, 
-                       db: AsyncSession = Depends(get_db),
-                       current_user: User = Depends(require_role("ADMIN"))
-                       ):
-    
-    query = select(Payment).order_by(desc(Payment.created_at))
-
-    if payment_status:
-        query = query.where(
-            Payment.payment_status == payment_status.upper()
-        )
-
-    result = await db.execute(query)
-    payments = result.scalars().all()
-
-    return payments
-
-
-# GET PAYMENT DETAIL
-@router.get("/admin/{payment_id}",response_model=PaymentDetailResponse)
-async def get_payment_detail(payment_id: int, db: AsyncSession = Depends(get_db),
-                             current_user: User = Depends(require_role("ADMIN"))
-                             ):
-    
-    query = (
-        select(Payment)
-        .options(selectinload(Payment.transactions))
-        .where(Payment.id == payment_id)
-    )
-
-    result = await db.execute(query)
-    payment = result.scalar_one_or_none()
-
-    if payment is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Payment not found"
-        )
-
-    return payment

@@ -6,8 +6,10 @@ from sqlalchemy import (
     Integer,
     String,
     Text,
+    Numeric,
     func
 )
+from decimal import Decimal
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database.base import Base
@@ -49,8 +51,8 @@ class Shipment(Base):
     )
 
     shipping_fee: Mapped[int] = mapped_column(
-        Integer,
-        default=0,
+        Numeric(12, 2),
+        default=Decimal("0.00"),
         nullable=False
     )
 

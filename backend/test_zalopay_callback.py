@@ -17,7 +17,7 @@ async def main():
     callback_info = {
         "app_id": settings.zalopay_appid,
         "app_trans_id": app_trans_id,
-        "amount": amount + 1000,
+        "amount": amount,
         "zp_trans_id": 123456789,
         "server_time": int(time.time() * 1000)
     }

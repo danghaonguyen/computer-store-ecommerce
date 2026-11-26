@@ -52,6 +52,7 @@ class ZaloPayService:
             "bankcode": ""
         }
 
+
         mac_data = "|".join([
             str(order_data["appid"]),
             order_data["apptransid"],
@@ -67,6 +68,8 @@ class ZaloPayService:
             mac_data.encode("utf-8"),
             hashlib.sha256
         ).hexdigest()
+
+        
 
         async with httpx.AsyncClient(timeout=15.0) as client:
 

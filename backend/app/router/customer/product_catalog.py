@@ -10,11 +10,11 @@ from app.schemas.product_catalog import ProductCatalogDetailResponse
 from app.schemas.product import ProductResponse
 
 
-router = APIRouter(prefix="/catalog/products", tags=["Product Catalog"])
+customer = APIRouter(prefix="/catalog/products", tags=["Product Catalog"])
 
 
 # GET ACTIVE PRODUCT
-@router.get("", response_model=list[ProductResponse])
+@customer.get("", response_model=list[ProductResponse])
 async def get_catalog_products(db: AsyncSession = Depends(get_db)):
 
     query = select(Product).where(Product.is_active == True)
@@ -27,7 +27,7 @@ async def get_catalog_products(db: AsyncSession = Depends(get_db)):
 
 
 # GET PRODUCT
-@router.get("/{product_id}", response_model=ProductCatalogDetailResponse)
+@customer.get("/{product_id}", response_model=ProductCatalogDetailResponse)
 async def get_catalog_product_detail(product_id: int, db: AsyncSession = Depends(get_db)):
 
 

@@ -13,12 +13,12 @@ from app.schemas.product_attribute import (
     ProductAttributeUpdate
 )
 
-router = APIRouter(prefix="/products/{product_id}/attributes", 
-                   tags=["Product Attributes"])
+admin = APIRouter(prefix="/admin/products/{product_id}/attributes", 
+                   tags=["Product Attributes - Admin"])
 
 
 # ADD PRODUCT ATTRIBUTES
-@router.post("", response_model=ProductAttributeResponse, status_code=status.HTTP_201_CREATED)
+@admin.post("", response_model=ProductAttributeResponse, status_code=status.HTTP_201_CREATED)
 async def create_product_attribute(product_id: int, attribute_data: ProductAttributeCreate, 
                                    db: AsyncSession = Depends(get_db), 
                                    current_user: User = Depends(require_role("ADMIN"))
@@ -60,7 +60,7 @@ async def create_product_attribute(product_id: int, attribute_data: ProductAttri
 
 
 # GET PRODUCT ATTRIBUTES
-@router.get("", response_model=list[ProductAttributeResponse])
+@admin.get("", response_model=list[ProductAttributeResponse])
 async def get_product_attribute(product_id: int, db: AsyncSession = Depends(get_db), 
                                 current_user: User = Depends(require_role("ADMIN"))
                                 ):
@@ -88,7 +88,7 @@ async def get_product_attribute(product_id: int, db: AsyncSession = Depends(get_
     return attribute
 
 # GET PRODUCT ATTRIBUTES ID
-@router.get("/{attribute_id}", response_model=ProductAttributeResponse)
+@admin.get("/{attribute_id}", response_model=ProductAttributeResponse)
 async def get_product_attribute_id(product_id: int, attribute_id: int, 
                                    db: AsyncSession = Depends(get_db), 
                                    current_user: User = Depends(require_role("ADMIN"))
@@ -118,7 +118,7 @@ async def get_product_attribute_id(product_id: int, attribute_id: int,
     return attribute
 
 # UPDATE PRODUCT ATTRIBUTE
-@router.patch("/{attribute_id}", response_model=ProductAttributeResponse)
+@admin.patch("/{attribute_id}", response_model=ProductAttributeResponse)
 async def update_product_attribute(product_id: int, attribute_id: int,  
                                    attribute_data: ProductAttributeUpdate, db: AsyncSession = Depends(get_db), 
                                    current_user: User = Depends(require_role("ADMIN"))
@@ -176,7 +176,7 @@ async def update_product_attribute(product_id: int, attribute_id: int,
 
 
 # DELETE PRODUCT ATTRIBUTES
-@router.delete("/{attribute_id}")
+@admin.delete("/{attribute_id}")
 async def delete_product_attribute(product_id: int, attribute_id: int, 
                                    db: AsyncSession = Depends(get_db), 
                                    current_user: User = Depends(require_role("ADMIN"))

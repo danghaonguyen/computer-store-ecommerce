@@ -11,11 +11,11 @@ from app.model_database.users.user import User
 from app.schemas.inventory import InventoryCreate, InventoryResponse
 
 
-router = APIRouter(prefix="/inventories", tags=["Inventories"])
+admin = APIRouter(prefix="/admin/inventories", tags=["Inventories - Admin"])
 
 
 # CREATE INVENTORY
-@router.post("", response_model=InventoryResponse, status_code=status.HTTP_201_CREATED)
+@admin.post("", response_model=InventoryResponse, status_code=status.HTTP_201_CREATED)
 async def create_inventory(inventory_data: InventoryCreate,
                            db: AsyncSession = Depends(get_db),
                            current_user: User = Depends(require_role("ADMIN"))
@@ -71,7 +71,7 @@ async def create_inventory(inventory_data: InventoryCreate,
 
 
 # GET INVENTORY
-@router.get("", response_model=list[InventoryResponse])
+@admin.get("", response_model=list[InventoryResponse])
 async def get_inventory(db: AsyncSession = Depends(get_db),
                           current_user: User = Depends(require_role("ADMIN"))
                           ):
@@ -86,7 +86,7 @@ async def get_inventory(db: AsyncSession = Depends(get_db),
 
 
 # GET INVENTORY ID
-@router.get("/{inventory_id}", response_model=InventoryResponse)
+@admin.get("/{inventory_id}", response_model=InventoryResponse)
 async def get_inventory_id(inventory_id: int, db: AsyncSession = Depends(get_db),
                            current_user: User = Depends(require_role("ADMIN"))
                            ):

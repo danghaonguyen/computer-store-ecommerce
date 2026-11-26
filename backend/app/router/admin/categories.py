@@ -13,10 +13,10 @@ from app.schemas.category import (
      )
 from app.core.security import require_role
 
-router = APIRouter(prefix="/categories", tags=["Categories"])
+admin = APIRouter(prefix="/admin/categories", tags=["Categories"])
 
 # CREATE CATEGORY
-@router.post("", response_model=CategoryResponse, status_code=status.HTTP_201_CREATED)
+@admin.post("", response_model=CategoryResponse, status_code=status.HTTP_201_CREATED)
 async def create_category(category_data: CategoryCreate, 
                           db: AsyncSession = Depends(get_db), 
                           current_user: User = Depends(require_role("ADMIN"))
@@ -60,7 +60,7 @@ async def create_category(category_data: CategoryCreate,
 
 
 # GET CATEGORIES
-@router.get("", response_model=list[CategoryResponse])
+@admin.get("", response_model=list[CategoryResponse])
 async def get_categories(db: AsyncSession = Depends(get_db), 
                          current_user: User = Depends(require_role("ADMIN"))
                          ):
@@ -75,7 +75,7 @@ async def get_categories(db: AsyncSession = Depends(get_db),
 
 
 # GET CATEGORY ID
-@router.get("/{category_id}", response_model=CategoryResponse)
+@admin.get("/{category_id}", response_model=CategoryResponse)
 async def get_category(category_id: int, db: AsyncSession = Depends(get_db), 
                        current_user: User = Depends(require_role("ADMIN"))
                        ):
@@ -94,7 +94,7 @@ async def get_category(category_id: int, db: AsyncSession = Depends(get_db),
 
 
 # UPDATE CATEGORY ID
-@router.patch("/{category_id}", response_model=CategoryResponse)
+@admin.patch("/{category_id}", response_model=CategoryResponse)
 async def update_category(category_id: int, category_data: CategoryUpdate, 
                           db: AsyncSession = Depends(get_db), 
                           current_user: User = Depends(require_role("ADMIN"))):
@@ -154,7 +154,7 @@ async def update_category(category_id: int, category_data: CategoryUpdate,
 
 
 # UPDATE CATEGORY STATUS
-@router.patch("/{category_id}/status")
+@admin.patch("/{category_id}/status")
 async def update_category_status(category_id: int, category_data: CategoryStatusUpdate, 
                                  db: AsyncSession = Depends(get_db),
                                  current_user: User = Depends(require_role("ADMIN"))
@@ -184,7 +184,7 @@ async def update_category_status(category_id: int, category_data: CategoryStatus
 
 
 # DELETE CATEGORY
-@router.delete("/{category_id}")
+@admin.delete("/{category_id}")
 async def delete_category(category_id: int, db: AsyncSession = Depends(get_db), 
                           current_user: User = Depends(require_role("ADMIN"))
                           ):

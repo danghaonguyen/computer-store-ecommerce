@@ -17,11 +17,11 @@ from app.model_database.users.user import User
 
 
 
-router = APIRouter(prefix="/stock-movements", tags=["Stock Movements"])
+admin = APIRouter(prefix="/admin/stock-movements", tags=["Stock Movements - Admin"])
 
 
 # CREATE STOCK MOVEMENT
-@router.post("", response_model=StockMovementResponse, status_code=status.HTTP_201_CREATED)
+@admin.post("", response_model=StockMovementResponse, status_code=status.HTTP_201_CREATED)
 async def create_stock_movement(payload: StockMovementCreate,
                                 db: AsyncSession = Depends(get_db),
                                 current_user: User = Depends(require_role("ADMIN"))
@@ -86,7 +86,7 @@ async def create_stock_movement(payload: StockMovementCreate,
 
 
 # GET STOCK MOVEMENT
-@router.get("", response_model=list[StockMovementResponse])
+@admin.get("", response_model=list[StockMovementResponse])
 async def get_stock_movement(db: AsyncSession = Depends(get_db),
                              current_user: User = Depends(require_role("ADMIN"))
                              ):
@@ -101,7 +101,7 @@ async def get_stock_movement(db: AsyncSession = Depends(get_db),
 
 
 # GET STOCK MOVEMENT ID
-@router.get("/{stock_movement_id}", response_model=StockMovementResponse)
+@admin.get("/{stock_movement_id}", response_model=StockMovementResponse)
 async def get_stock_movement_id(stock_movement_id: int, 
                                 db: AsyncSession = Depends(get_db),
                                 current_user: User = Depends(require_role("ADMIN"))

@@ -8,10 +8,10 @@ from app.schemas.user import UserResponse, UserUpdate, UserStatusUpdate, UserRol
 from app.core.security import require_role
 
 
-router = APIRouter(prefix="/users", tags=["Users"])
+admin = APIRouter(prefix="/admin/users", tags=["Users Management"])
 
 # GET USER
-@router.get("", response_model=list[UserResponse])
+@admin.get("", response_model=list[UserResponse])
 async def get_user(db: AsyncSession = Depends(get_db),
                    current_user: User = Depends(require_role("ADMIN"))
                    ):
@@ -25,7 +25,7 @@ async def get_user(db: AsyncSession = Depends(get_db),
     return user
 
 # GET USER_ID
-@router.get("/{user_id}", response_model=UserResponse)
+@admin.get("/{user_id}", response_model=UserResponse)
 async def get_user_id(user_id: int, db: AsyncSession = Depends(get_db), 
                       current_user: User = Depends(require_role("ADMIN"))
                       ):
@@ -43,7 +43,7 @@ async def get_user_id(user_id: int, db: AsyncSession = Depends(get_db),
     return user
 
 # UPATE USER
-@router.patch("/{user_id}", response_model=UserResponse)
+@admin.patch("/{user_id}", response_model=UserResponse)
 async def update_user(user_id: int, user_data: UserUpdate,
                       db: AsyncSession = Depends(get_db), 
                       current_user: User = Depends(require_role("ADMIN"))
@@ -76,7 +76,7 @@ async def update_user(user_id: int, user_data: UserUpdate,
 
 
 # UPDATE STATUS USER
-@router.patch("/{user_id}/status", response_model=UserResponse)
+@admin.patch("/{user_id}/status", response_model=UserResponse)
 async def update_user_status(user_id: int, user_data: UserStatusUpdate, 
                              db: AsyncSession = Depends(get_db), 
                              current_user: User = Depends(require_role("ADMIN"))
@@ -105,7 +105,7 @@ async def update_user_status(user_id: int, user_data: UserStatusUpdate,
     return user
 
 # UPDATE ROLES USER
-@router.patch("/{user_id}/roles", response_model=UserResponse)
+@admin.patch("/{user_id}/roles", response_model=UserResponse)
 async def update_user_roles(user_id: int, user_data: UserRolesUpdate, 
                             db: AsyncSession = Depends(get_db), 
                             current_user: User = Depends(require_role("ADMIN"))

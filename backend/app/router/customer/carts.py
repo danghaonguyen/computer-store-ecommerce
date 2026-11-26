@@ -16,11 +16,11 @@ from app.schemas.cart import (
     CartItemResponse
 )
 
-router = APIRouter(prefix="/cart", tags=["Cart"])
+customer = APIRouter(prefix="/cart", tags=["Carts - Customer"])
 
 
 # GET CART
-@router.get("", response_model=CartResponse)
+@customer.get("", response_model=CartResponse)
 async def get_cart(db: AsyncSession = Depends(get_db), 
                    current_user: User = Depends(require_role("CUSTOMER"))
                    ):
@@ -52,7 +52,7 @@ async def get_cart(db: AsyncSession = Depends(get_db),
     return cart
 
 # ADD CART ITEM IN CART
-@router.post("/items", response_model=CartResponse, status_code=status.HTTP_201_CREATED)
+@customer.post("/items", response_model=CartResponse, status_code=status.HTTP_201_CREATED)
 async def add_cart_item(item_data: CartItemCreate, 
                         db: AsyncSession = Depends(get_db), 
                         current_user: User = Depends(require_role("CUSTOMER"))
@@ -131,7 +131,7 @@ async def add_cart_item(item_data: CartItemCreate,
     return cart
 
 # UPDATE QUANTITY CART ITEM
-@router.patch("/items/{item_id}", response_model=CartItemResponse)
+@customer.patch("/items/{item_id}", response_model=CartItemResponse)
 async def update_cart_item(item_id: int, item_data: CartItemUpdate, 
                            db: AsyncSession = Depends(get_db),
                            current_user: User = Depends(require_role("CUSTOMER"))
@@ -166,7 +166,7 @@ async def update_cart_item(item_id: int, item_data: CartItemUpdate,
 
 
 # DELETE CART ITEM
-@router.delete("/items/{item_id}")
+@customer.delete("/items/{item_id}")
 async def delete_cart_item(item_id: int,
                            db: AsyncSession = Depends(get_db),
                            current_user: User = Depends(require_role("CUSTOMER"))

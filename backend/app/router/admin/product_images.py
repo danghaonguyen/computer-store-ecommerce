@@ -13,11 +13,11 @@ from app.schemas.product_image import (
     ProductImageUpdate
 )
 
-router = APIRouter(prefix="/products/{product_id}/images", tags=["Product Images"])
+admin = APIRouter(prefix="/admin/products/{product_id}/images", tags=["Product Images - Admin"])
 
 
 # ADD PRODUCT IMAGES
-@router.post("", response_model=ProductImageResponse, status_code=status.HTTP_201_CREATED)
+@admin.post("", response_model=ProductImageResponse, status_code=status.HTTP_201_CREATED)
 async def create_product_image(
     product_id: int,
     image_data: ProductImageCreate,
@@ -63,7 +63,7 @@ async def create_product_image(
 
 
 # GET PRODUCT IMAGES
-@router.get("", response_model=list[ProductImageResponse])
+@admin.get("", response_model=list[ProductImageResponse])
 async def get_product_images(
     product_id: int,
     db: AsyncSession = Depends(get_db),
@@ -93,7 +93,7 @@ async def get_product_images(
     return images
 
 # GET PRODUCT IMAGES ID
-@router.get("/{image_id}", response_model=ProductImageResponse)
+@admin.get("/{image_id}", response_model=ProductImageResponse)
 async def get_product_images_id(product_id: int, image_id: int, 
                                 db: AsyncSession = Depends(get_db), 
                                 current_user: User = Depends(require_role("ADMIN"))
@@ -124,7 +124,7 @@ async def get_product_images_id(product_id: int, image_id: int,
 
 
 # UPDATE PRODUCT IMAGES
-@router.patch("/{image_id}", response_model=ProductImageResponse)
+@admin.patch("/{image_id}", response_model=ProductImageResponse)
 async def update_product_image(product_id: int, image_id: int, 
                                image_data: ProductImageUpdate, 
                                db: AsyncSession = Depends(get_db), 
@@ -182,7 +182,7 @@ async def update_product_image(product_id: int, image_id: int,
 
 
 # DELETE PRODUCT IMAGES
-@router.delete("/{image_id}")
+@admin.delete("/{image_id}")
 async def delete_product_image(product_id: int, image_id: int, 
                                db: AsyncSession = Depends(get_db), 
                                current_user: User = Depends(require_role("ADMIN"))
