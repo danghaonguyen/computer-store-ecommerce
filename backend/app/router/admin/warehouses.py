@@ -16,7 +16,7 @@ from app.model_database.inventory.inventory import Inventory
 
 
 
-admin = APIRouter(prefix="/admin/warehouses", tags=["Warehouses - Admin"])
+admin = APIRouter(prefix="/admin/warehouses", tags=["Warehouses Management"])
 
 
 # CREATE WAREHOUSE
@@ -45,7 +45,9 @@ async def create_warehouse(warehouse_data: WarehouseCreate,
 
     except Exception:
         await db.rollback()
-        raise
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                                            detail="Failed to create warhouse")
+        
 
     return new_warehouse
 
@@ -124,7 +126,9 @@ async def update_warehouse(warehouse_id: int, warehouse_data: WarehouseUpdate,
 
     except Exception:
         await db.rollback()
-        raise
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                                            detail="Failed to update warhouse")
+        
 
     return warehouse
 
@@ -154,13 +158,15 @@ async def update_warehouse_status(warehouse_id: int, warehouse_data: WarehouseSt
 
     except Exception:
         await db.rollback()
-        raise
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                                            detail="Failed to update warhouse status")
+        
 
     return warehouse
 
 
 # DELETE WAREHOUSE
-@admin.delete("/{warehouse_id}")
+@admin.delete("/{warehouse_id}", status_code=status.HTTP_200_OK)
 async def delete_warehouse(warehouse_id: int, db: AsyncSession = Depends(get_db),
                            current_user: User = Depends(require_role("ADMIN"))
                            ):
@@ -192,6 +198,8 @@ async def delete_warehouse(warehouse_id: int, db: AsyncSession = Depends(get_db)
 
     except Exception:
         await db.rollback()
-        raise
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                                            detail="Failed to delete warhouse")
+        
 
     return {"message" : "Warehouse deleted successfully"}

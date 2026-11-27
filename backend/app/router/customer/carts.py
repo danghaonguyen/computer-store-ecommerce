@@ -47,7 +47,8 @@ async def get_cart(db: AsyncSession = Depends(get_db),
 
         except Exception:
             await db.rollback()
-            raise
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                                        detail="Failed to get cart")
 
     return cart
 
@@ -126,7 +127,8 @@ async def add_cart_item(item_data: CartItemCreate,
 
     except Exception:
         await db.rollback()
-        raise
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                                    detail="Failed to create cart item")
 
     return cart
 
@@ -160,13 +162,14 @@ async def update_cart_item(item_id: int, item_data: CartItemUpdate,
 
     except Exception:
         await db.rollback()
-        raise
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                                    detail="Failed to update quantity cart items")
 
     return cart_item
 
 
 # DELETE CART ITEM
-@customer.delete("/items/{item_id}")
+@customer.delete("/items/{item_id}", status_code=status.HTTP_200_OK)
 async def delete_cart_item(item_id: int,
                            db: AsyncSession = Depends(get_db),
                            current_user: User = Depends(require_role("CUSTOMER"))
@@ -190,6 +193,7 @@ async def delete_cart_item(item_id: int,
 
     except Exception:
         await db.rollback()
-        raise
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                                    detail="Failed to deletd cart item")
 
     return {"message": "Cart item deleted successfully"}

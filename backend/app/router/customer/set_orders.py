@@ -268,7 +268,8 @@ async def create_order(order_data: OrderCreate, db: AsyncSession = Depends(get_d
 
     except Exception:
         await db.rollback()
-        raise
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                                    detail="Failed to create order")
 
     return order_result
 
@@ -404,7 +405,8 @@ async def update_order(order_id: int, db: AsyncSession = Depends(get_db),
 
     except Exception:
         await db.rollback()
-        raise
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                                    detail="Failed to update order")
 
     return order
 

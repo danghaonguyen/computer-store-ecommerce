@@ -1,30 +1,25 @@
 from fastapi import APIRouter, HTTPException, Depends, status
-from sqlalchemy import select, func
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-
 
 from app.database.database import get_db
 from app.model_database.promotions.coupon import Coupon
-from app.model_database.promotions.coupon_usage import CouponUsage
 from app.model_database.users.user import User
 from app.schemas.coupon import (
     CouponCreate, 
     CouponResponse,
     CouponUpdate,
     CouponUpdateStatus,
-    CouponValidate,
-    CouponValidateResponse
+
 )
 
 from app.core.security import require_role
-from datetime import datetime, timezone
-from decimal import Decimal
 
-
-admin = APIRouter(prefix="/admin/coupons", tags=["Coupons - Admin"])
+admin = APIRouter(prefix="/admin/coupons", tags=["Coupons Management"])
 
 
 # ADMIN ==========================
+# CREATE COUPON
 @admin.post("", response_model=CouponResponse, status_code=status.HTTP_201_CREATED)
 async def create_coupon(coupon_data: CouponCreate, db: AsyncSession = Depends(get_db),
                         current_user: User = Depends(require_role("ADMIN"))
@@ -51,7 +46,8 @@ async def create_coupon(coupon_data: CouponCreate, db: AsyncSession = Depends(ge
 
     except Exception:
         await db.rollback()
-        raise
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                                                    detail="Failed to create coupon")
 
     return new_coupon
 
@@ -147,7 +143,8 @@ async def update_coupon(coupon_id: int, coupon_data: CouponUpdate,
 
     except Exception:
         await db.rollback()
-        raise 
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                                                    detail="Failed to update info coupon") 
 
     return coupon
 
@@ -177,6 +174,7 @@ async def update_coupon_status(coupon_id: int, coupon_data: CouponUpdateStatus,
 
     except Exception:
         await db.rollback()
-        raise
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                                                    detail="Failed to update status coupon")
 
     return coupon

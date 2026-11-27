@@ -13,7 +13,8 @@ from app.schemas.product_image import (
     ProductImageUpdate
 )
 
-admin = APIRouter(prefix="/admin/products/{product_id}/images", tags=["Product Images - Admin"])
+admin = APIRouter(prefix="/admin/products/{product_id}/images", 
+                  tags=["Product Images Management"])
 
 
 # ADD PRODUCT IMAGES
@@ -57,7 +58,8 @@ async def create_product_image(
 
     except Exception:
         await db.rollback()
-        raise
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                                                    detail="Failed to create product image")
 
     return new_image
 
@@ -176,7 +178,8 @@ async def update_product_image(product_id: int, image_id: int,
 
     except Exception:
         await db.rollback()
-        raise
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                                                    detail="Failed to update product image")
 
     return image
 
@@ -215,7 +218,8 @@ async def delete_product_image(product_id: int, image_id: int,
 
     except Exception:
         await db.rollback()
-        raise
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                                                    detail="Failed to delete product image")
 
     return {"message" : "Product Image deleted successfully"}
 

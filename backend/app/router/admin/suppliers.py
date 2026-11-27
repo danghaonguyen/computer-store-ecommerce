@@ -10,7 +10,7 @@ from app.core.security import require_role
 from app.model_database.users.user import User
 
 
-admin = APIRouter(prefix="/admin/suppliers", tags=["Suppliers - Admin"])
+admin = APIRouter(prefix="/admin/suppliers", tags=["Suppliers Management"])
 
 
 # CREATE SUPPLIER
@@ -39,7 +39,9 @@ async def create_supplier(supplier_data: SupplierCreate,
 
     except Exception:
         await db.rollback()
-        raise 
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                                            detail="Failed to create supplier")
+        
 
     return new_supplier
 
@@ -122,13 +124,14 @@ async def update_supplier(supplier_id: int, supplier_data: SupplierUpdate,
 
     except Exception:
         await db.rollback()
-        raise
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                                                    detail="Failed to update info supplier")
 
     return supplier
 
 
 # DELETE SUPPLIER 
-@admin.delete("/{supplier_id}", status_code=status.HTTP_204_NO_CONTENT)
+@admin.delete("/{supplier_id}", status_code=status.HTTP_200_OK)
 async def delete_supplier(supplier_id: int, 
                           db: AsyncSession = Depends(get_db),
                           current_user: User = Depends(require_role("ADMIN"))
@@ -161,7 +164,8 @@ async def delete_supplier(supplier_id: int,
 
     except Exception:
         await db.rollback()
-        raise
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                                                    detail="Failed to delete supplier")
 
     return {"message" : "Supplier deleted successfully"}
     

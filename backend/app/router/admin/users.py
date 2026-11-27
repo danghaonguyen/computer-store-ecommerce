@@ -42,7 +42,7 @@ async def get_user_id(user_id: int, db: AsyncSession = Depends(get_db),
 
     return user
 
-# UPATE USER
+# UPDATE USER
 @admin.patch("/{user_id}", response_model=UserResponse)
 async def update_user(user_id: int, user_data: UserUpdate,
                       db: AsyncSession = Depends(get_db), 
@@ -70,8 +70,9 @@ async def update_user(user_id: int, user_data: UserUpdate,
 
     except Exception:
         await db.rollback()
-        raise
-
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                                            detail="Failed to update info user")
+        
     return user
 
 
@@ -100,7 +101,9 @@ async def update_user_status(user_id: int, user_data: UserStatusUpdate,
 
     except Exception:
         await db.rollback()
-        raise
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                                            detail="Failed to update status user")
+        
 
     return user
 
@@ -139,6 +142,8 @@ async def update_user_roles(user_id: int, user_data: UserRolesUpdate,
 
     except Exception:
         await db.rollback()
-        raise
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                                            detail="Failed to update user role")
+        
 
     return user

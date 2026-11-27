@@ -93,7 +93,8 @@ async def add_product_wishlist(wishlist_data: WishlistCreate,
 
     except Exception:
         await db.rollback()
-        raise
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                                    detail="Failed to add product in wishlist")
 
 
     return wishlist
@@ -123,6 +124,7 @@ async def delete_product_wishlist(wishlist_id: int,
 
     except Exception:
         await db.rollback()
-        raise
-
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                                            detail="Failed to delete product in wishlist")
+        
     return {"message" : "Wishlist deleted successfully"}

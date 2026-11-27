@@ -18,7 +18,7 @@ from app.services.shipment_service import (
 from app.core.security import require_role
 
 
-admin = APIRouter(prefix="/admin/shipments", tags=["Shipments - Admin"])
+admin = APIRouter(prefix="/admin/shipments", tags=["Shipments Management"])
 
 # CREATE SHIPMENT
 @admin.post("", response_model=ShipmentResponse, status_code=status.HTTP_201_CREATED)

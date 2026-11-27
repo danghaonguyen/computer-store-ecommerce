@@ -14,7 +14,7 @@ from app.schemas.product_attribute import (
 )
 
 admin = APIRouter(prefix="/admin/products/{product_id}/attributes", 
-                   tags=["Product Attributes - Admin"])
+                   tags=["Product Attributes Management"])
 
 
 # ADD PRODUCT ATTRIBUTES
@@ -54,7 +54,8 @@ async def create_product_attribute(product_id: int, attribute_data: ProductAttri
 
     except Exception:
         await db.rollback()
-        raise
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                                                    detail="Failed to create product attribute")
 
     return new_attribute
 
@@ -170,7 +171,8 @@ async def update_product_attribute(product_id: int, attribute_id: int,
 
     except Exception:
         await db.rollback()
-        raise
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                                                    detail="Failed to update info product attribute")
 
     return attribute
 
@@ -209,6 +211,7 @@ async def delete_product_attribute(product_id: int, attribute_id: int,
 
     except Exception:
         await db.rollback()
-        raise
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                                                    detail="Failed to delete product attribute")
 
     return {"message" : "Product attribute deleted successfully"}

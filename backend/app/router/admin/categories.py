@@ -13,7 +13,7 @@ from app.schemas.category import (
      )
 from app.core.security import require_role
 
-admin = APIRouter(prefix="/admin/categories", tags=["Categories"])
+admin = APIRouter(prefix="/admin/categories", tags=["Categories Management"])
 
 # CREATE CATEGORY
 @admin.post("", response_model=CategoryResponse, status_code=status.HTTP_201_CREATED)
@@ -54,7 +54,8 @@ async def create_category(category_data: CategoryCreate,
 
     except Exception:
         await db.rollback()
-        raise
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                                                    detail="Failed to create category")
 
     return new_category
 
@@ -148,7 +149,8 @@ async def update_category(category_id: int, category_data: CategoryUpdate,
 
     except Exception:
         await db.rollback()
-        raise
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                                                    detail="Failed to update info category")
 
     return category
 
@@ -178,7 +180,8 @@ async def update_category_status(category_id: int, category_data: CategoryStatus
 
     except Exception:
         await db.rollback()
-        raise
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                                                    detail="Failed to update status category")
 
     return category
 
@@ -205,7 +208,8 @@ async def delete_category(category_id: int, db: AsyncSession = Depends(get_db),
 
     except Exception:
         await db.rollback()
-        raise
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                                                    detail="Failed to delete category")
     
     return {"message" : "Category deleted successfully"}
 

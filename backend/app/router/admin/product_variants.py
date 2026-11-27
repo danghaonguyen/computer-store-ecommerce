@@ -18,7 +18,7 @@ from app.schemas.product_variant import (
 from app.model_database.users.user import User
 
 admin = APIRouter(prefix="/admin/products/{product_id}/variants", 
-                   tags=["Product Variants - Admin"])
+                   tags=["Product Variants Management"])
 
 # ADD PRODUCT VARIANT
 @admin.post("", response_model=ProductVariantResponse, status_code=status.HTTP_201_CREATED)
@@ -56,7 +56,8 @@ async def create_product_variant(product_id: int, variant_data: ProductVariantCr
 
     except Exception:
         await db.rollback()
-        raise
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                                                    detail="Failed to create product variant")
 
     return new_variant
 
@@ -167,7 +168,8 @@ async def update_product_variant(product_id: int, variant_id: int,
 
     except Exception:
         await db.rollback()
-        raise
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                                                    detail="Failed to update info product variant")
 
     return variant
 
@@ -208,7 +210,8 @@ async def update_product_variant_status(product_id: int, variant_id: int,
 
     except Exception:
         await db.rollback()
-        raise
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                                                    detail="Failed to update status product variant")
 
     return variant
 
@@ -272,6 +275,7 @@ async def delete_product_variant(product_id: int, variant_id: int,
 
     except Exception:
         await db.rollback()
-        raise
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                                                    detail="Failed to delete product variant")
 
     return {"message": "Product variant deleted successfully"}

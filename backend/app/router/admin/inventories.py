@@ -11,7 +11,7 @@ from app.model_database.users.user import User
 from app.schemas.inventory import InventoryCreate, InventoryResponse
 
 
-admin = APIRouter(prefix="/admin/inventories", tags=["Inventories - Admin"])
+admin = APIRouter(prefix="/admin/inventories", tags=["Inventories Management"])
 
 
 # CREATE INVENTORY
@@ -65,7 +65,8 @@ async def create_inventory(inventory_data: InventoryCreate,
 
     except Exception:
         await db.rollback()
-        raise
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                                                    detail="Failed to create inventory")
 
     return new_inventory
 

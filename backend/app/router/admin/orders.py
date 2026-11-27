@@ -19,7 +19,7 @@ from app.schemas.order import (
     OrderDetailResponse
 )
 
-admin = APIRouter(prefix="/admin/orders", tags=["Orders - Admin"])
+admin = APIRouter(prefix="/admin/orders", tags=["Orders Management"])
 
 
 # ADMIN =================================
@@ -104,7 +104,8 @@ async def update_order_status(order_id: int, order_data: OrderStatusUpdate,
 
     except Exception:
         await db.rollback()
-        raise
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                                                    detail="Failed to update status order")
 
     return order
 

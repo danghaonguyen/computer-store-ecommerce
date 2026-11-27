@@ -14,7 +14,7 @@ from app.schemas.payment import (
     PaymentResponse
 )
 
-admin = APIRouter(prefix="/admin/payments", tags=["Payments - Admin"])
+admin = APIRouter(prefix="/admin/payments", tags=["Payments Management"])
 
 # ADMIN ========================================
 # GET PAYMENT LIST

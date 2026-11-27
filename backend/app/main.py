@@ -19,7 +19,9 @@ from app.router.admin import (
     users, 
     warehouses,
     orders,
-    payments
+    payments,
+    check_reviews,
+    notifications
 )
 
 from app.router.customer import (
@@ -30,8 +32,11 @@ from app.router.customer import (
     orders_shipment,
     view_shipments,
     use_coupons,
-    use_payments
+    use_payments,
+    reviews,
+    check_notification
 )
+
 
 
 app = FastAPI()
@@ -65,6 +70,12 @@ app.include_router(orders.admin)
 app.include_router(payments.admin)
 app.include_router(shipments.admin)
 
+# Check review for customer
+app.include_router(check_reviews.admin)
+
+# Notification managment
+app.include_router(notifications.admin)
+
 # CUSTOMER ==========================================
 
 # Cart & Set Order Management
@@ -82,6 +93,12 @@ app.include_router(view_shipments.customer)
 # Use Method Payment & Coupons
 app.include_router(use_coupons.customer)
 app.include_router(use_payments.customer)
+
+# Review Product
+app.include_router(reviews.customer)
+
+# Check notifications
+app.include_router(check_notification.customer)
 
 # ZALOPAY CALLBACK
 app.include_router(zalo_callback.callback_router)

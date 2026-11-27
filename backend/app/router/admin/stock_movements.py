@@ -17,7 +17,7 @@ from app.model_database.users.user import User
 
 
 
-admin = APIRouter(prefix="/admin/stock-movements", tags=["Stock Movements - Admin"])
+admin = APIRouter(prefix="/admin/stock-movements", tags=["Stock Movements Management"])
 
 
 # CREATE STOCK MOVEMENT
@@ -80,7 +80,8 @@ async def create_stock_movement(payload: StockMovementCreate,
 
     except Exception:
         await db.rollback()
-        raise
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                                                    detail="Failed to create stock movement")
 
     return stock_movement
 

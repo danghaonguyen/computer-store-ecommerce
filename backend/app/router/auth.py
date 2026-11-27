@@ -64,7 +64,8 @@ async def register_user(user_data: UserCreate, db: AsyncSession = Depends(get_db
 
     except Exception:
         await db.rollback()
-        raise
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                                                    detail="Failed to register")
 
     return new_user    
 

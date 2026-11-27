@@ -12,7 +12,7 @@ from app.model_database.reviews.review import Review
 from app.schemas.product import ProductCreate, ProductResponse, ProductStatusUpdate, ProductUpdate
 
 
-admin = APIRouter(prefix="/admin/products", tags=["Products - Admin"])
+admin = APIRouter(prefix="/admin/products", tags=["Products Management"])
 
 # CREATE PRODUCT
 @admin.post("", response_model=ProductResponse, status_code=status.HTTP_201_CREATED)
@@ -61,7 +61,8 @@ async def create_product(product_data: ProductCreate,
 
     except Exception:
         await db.rollback()
-        raise
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                                                    detail="Failed to create product")
 
     return new_product
 
@@ -163,7 +164,8 @@ async def update_product(product_id: int, product_data: ProductUpdate,
 
     except Exception:
         await db.rollback()
-        raise
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                                                    detail="Failed to update info product")
 
     return product
 
@@ -193,7 +195,8 @@ async def update_product_status(product_id: int, product_data: ProductStatusUpda
 
     except Exception:
         await db.rollback()
-        raise
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                                                    detail="Failed to update status product")
 
     return product
 
@@ -231,6 +234,7 @@ async def delete_product(product_id: int,
 
     except Exception:
         await db.rollback()
-        raise
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                                                    detail="Failed to delete product")
 
     return {"message": "Product deleted successfully"}

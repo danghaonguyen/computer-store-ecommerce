@@ -14,7 +14,7 @@ from app.core.security import require_role
 from app.model_database.users.user import User
 
 
-admin = APIRouter(prefix="/admin/brands", tags=["Brands"])
+admin = APIRouter(prefix="/admin/brands", tags=["Brands Management"])
 
 # CREATED BRAND
 @admin.post("", response_model=BrandResponse, status_code=status.HTTP_201_CREATED)
@@ -52,7 +52,8 @@ async def create_brand(brand_data: BrandCreate,
 
     except Exception:
         await db.rollback()
-        raise
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                                                    detail="Failed to create brand")
     
     return new_brand
 
@@ -145,7 +146,8 @@ async def update_brand(brand_id: int, brand_data: BrandUpdate,
 
     except Exception:
         await db.rollback()
-        raise
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                                                    detail="Failed to update info brand")
 
     return brand
 
@@ -175,7 +177,8 @@ async def update_brand_status(brand_id: int, brand_data: BrandStatusUpdate,
 
     except Exception:
         await db.rollback()
-        raise
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                                                    detail="Failed to update status brand")
 
     return brand
 
@@ -202,6 +205,7 @@ async def delete_brand(brand_id: int,
 
     except Exception:
         await db.rollback()
-        raise
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                                                    detail="Failed to delete brand")
 
     return {"message" : "Brand deleted successfully"}

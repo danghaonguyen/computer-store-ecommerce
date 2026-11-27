@@ -6,6 +6,7 @@ from sqlalchemy import (
     ForeignKey,
     Integer,
     Text,
+    UniqueConstraint,
     func
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -26,6 +27,11 @@ class Review(Base):
         CheckConstraint(
             "rating >= 1 AND rating <= 5",
             name="ck_review_rating_range"
+        ),
+
+        UniqueConstraint(
+            "user_id", "product_id",
+            name="uq_review_user_product"
         ),
     )
 

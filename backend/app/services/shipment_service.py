@@ -48,7 +48,8 @@ async def create_shipment(db: AsyncSession, shipment_data: ShipmentCreate):
 
     except Exception:
         await db.rollback()
-        raise
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                                                    detail="Failed to create shipment")
 
     return new_shipment
 
@@ -104,7 +105,8 @@ async def update_shipment_id(db: AsyncSession, shipment_id: int,
 
     except Exception:
         await db.rollback()
-        raise 
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                                                    detail="Failed to update info shipment") 
 
     return shipment
 
