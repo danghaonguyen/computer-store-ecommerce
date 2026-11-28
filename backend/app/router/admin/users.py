@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
+from sqlalchemy.orm import selectinload
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.database.database import get_db
 from app.model_database.users.user import User
@@ -114,7 +115,7 @@ async def update_user_roles(user_id: int, user_data: UserRolesUpdate,
                             current_user: User = Depends(require_role("ADMIN"))
                             ):
 
-    query = select(User).where(User.id == user_id)
+    query = select(User).options(selectinload(User.roles)).where(User.id == user_id)
 
     data = await db.execute(query)
 
